@@ -768,6 +768,8 @@ class SettingsMenu(Menu.Menu):
         ]
         self.shaderSettings = Menu.Menu(self.engine, self.shaderSettings, pos = (self.opt_text_x, self.opt_text_y), textColor = self.opt_text_color, selectedColor = self.opt_selected_color)
 
+        Config.define("video",  "remote_ip", str, "127.0.0.1", text=_("IP of Remote Server"), options = ["127.0.0.1","192.168.1.1"], tipText = _("Server IP to connect to."))
+        Config.define("video",  "remote_port", str, "3000", text=_("Port of Remote Server"), options=["3000", "5000", "7000", "9000"], tipText = _("Server Port to connect to."))
         self.advancedVideoSettings = [
           ConfigChoice(self.engine, self.engine.config, "engine", "highpriority", isQuickset = 1),
           ConfigChoice(self.engine, self.engine.config, "video",  "fps", isQuickset = 1),
@@ -778,6 +780,9 @@ class SettingsMenu(Menu.Menu):
           ConfigChoice(self.engine, self.engine.config, "video",  "multisamples", isQuickset = 1),
           ConfigChoice(self.engine, self.engine.config, "performance", "static_strings", autoApply = True, isQuickset = 1),      #myfingershurt
           ConfigChoice(self.engine, self.engine.config, "performance", "killfx", autoApply = True, isQuickset = 1),   #blazingamer
+          ConfigChoice(self.engine, self.engine.config, "video",  "remote", autoApply= True),       #yay?
+          ConfigChoice(self.engine, self.engine.config, "video",  "remote_ip", autoApply= True),    #yay?
+          ConfigChoice(self.engine, self.engine.config, "video",  "remote_port", autoApply= True),  #yay?
           (_("More Effects"), self.shaderSettings, _("Change the settings of the shader system.")), #volshebnyi
         ]
         self.advancedVideoSettingsMenu = Menu.Menu(self.engine, self.advancedVideoSettings, pos = (self.opt_text_x, self.opt_text_y), textColor = self.opt_text_color, selectedColor = self.opt_selected_color)
