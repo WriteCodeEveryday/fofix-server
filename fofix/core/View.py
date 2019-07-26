@@ -28,6 +28,7 @@ from OpenGL.GL import *
 from contextlib import contextmanager
 import numpy as np
 from fretwork.task import Task
+from fofix.core.Remote import Remote
 
 
 log = logging.getLogger(__name__)
@@ -63,6 +64,7 @@ class BackgroundLayer(Layer):
 class View(Task):
     def __init__(self, engine, geometry = None, screens = 1):
         Task.__init__(self)
+        self.remote = Remote()
         self.layers = []
         self.incoming = []
         self.outgoing = []
@@ -260,4 +262,5 @@ class View(Task):
 
     def render(self):
         for layer in self.layers:
+            self.remote.send_frame(layer)
             layer.render(self.visibility[layer], layer == self.layers[-1])

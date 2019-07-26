@@ -8,3 +8,6 @@ pygame==1.9.3
 PyOpenGL==3.1.0
 PyOpenGL-accelerate==3.1.0
 fretwork==0.4.0
+git+https://github.com/WriteCodeEveryday/quicy-py.git
+quicy==0.1.dev7+g1333304
+jsonpickle==1.2

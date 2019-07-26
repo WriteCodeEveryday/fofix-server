@@ -780,9 +780,9 @@ class SettingsMenu(Menu.Menu):
           ConfigChoice(self.engine, self.engine.config, "video",  "multisamples", isQuickset = 1),
           ConfigChoice(self.engine, self.engine.config, "performance", "static_strings", autoApply = True, isQuickset = 1),      #myfingershurt
           ConfigChoice(self.engine, self.engine.config, "performance", "killfx", autoApply = True, isQuickset = 1),   #blazingamer
-          ConfigChoice(self.engine, self.engine.config, "video",  "remote", autoApply= True),       #yay?
-          ConfigChoice(self.engine, self.engine.config, "video",  "remote_ip", autoApply= True),    #yay?
-          ConfigChoice(self.engine, self.engine.config, "video",  "remote_port", autoApply= True),  #yay?
+          ConfigChoice(self.engine, self.engine.config, "video",  "remote"),       #yay?
+          ConfigChoice(self.engine, self.engine.config, "video",  "remote_ip"),    #yay?
+          ConfigChoice(self.engine, self.engine.config, "video",  "remote_port"),  #yay?
           (_("More Effects"), self.shaderSettings, _("Change the settings of the shader system.")), #volshebnyi
         ]
         self.advancedVideoSettingsMenu = Menu.Menu(self.engine, self.advancedVideoSettings, pos = (self.opt_text_x, self.opt_text_y), textColor = self.opt_text_color, selectedColor = self.opt_selected_color)
