@@ -263,4 +263,4 @@ class View(Task):
     def render(self):
         for layer in self.layers:
             self.remote.send_frame(layer)
-            layer.render(self.visibility[layer], layer == self.layers[-1])
+            #layer.render(self.visibility[layer], layer == self.layers[-1])

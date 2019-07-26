@@ -1,7 +1,6 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 from fofix.core import Config
 import time
-import threading
 import jsonpickle
 
 class Remote():
@@ -37,8 +36,10 @@ class Remote():
                 Remote.connection = socket(AF_INET, SOCK_DGRAM)
             if (self.get_type() == 2):
                 Remote.connection.bind((self.ip, self.port))
+
+    def create_diag(self): 
         Remote.diagnostics = open("initial.csv", "w")
-        Remote.diagnostics.write(",".join(['Frame Time', 'Frame Broadcast Delay']))
+        Remote.diagnostics.write(",".join(['Frames per Second', 'Frame Time', 'Frame Broadcast Delay']) + "\n")
 
     def get_type(self):
         return Remote.storage["connection"]["type"]
@@ -48,7 +49,7 @@ class Remote():
     
     def build_send_payload(self, layer):
         current = self.build_timestamp()
-        frame_time = current - Remote.storage["server"]["current_time"]
+        frame_time = int(current - Remote.storage["server"]["current_time"])
         payload = {
             "frame_id": Remote.storage["server"]["frame_id"],
             "frame_time": frame_time,
@@ -67,7 +68,10 @@ class Remote():
         port = Remote.storage["connection"]["port"]
         pickled = jsonpickle.encode(payload)
         diff = self.build_timestamp() - payload['current_time']
-        Remote.diagnostics.write(",".join([payload['frame_time'], diff]))
+        if (Remote.diagnostics == None):
+            self.create_diag()
+        fps = int(1000 / payload['frame_time'])
+        Remote.diagnostics.write(",".join([str(fps), str(payload['frame_time']), str(diff)]) + "\n")
         #Remote.connection.sendto(jsonpickle(payload), ip, port)
 
     def send_frame(self, layer):
