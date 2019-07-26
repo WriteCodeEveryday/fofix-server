@@ -1,11 +1,13 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 from fofix.core import Config
+import threading
 import time
 import jsonpickle
 
 class Remote():
     diagnostics = None
     connection = None
+    pending = []
     storage = {
         "connection": {
             "ip": None,
@@ -38,8 +40,12 @@ class Remote():
                 Remote.connection.bind((self.ip, self.port))
 
     def create_diag(self): 
-        Remote.diagnostics = open("initial.csv", "w")
+        Remote.diagnostics = open("multi-shared.csv", "w")
         Remote.diagnostics.write(",".join(['Frames per Second', 'Frame Time', 'Frame Broadcast Delay']) + "\n")
+    
+    def write_diag(self, data):
+        Remote.diagnostics.write(data)
+        print('data written: ' + str(data));
 
     def get_type(self):
         return Remote.storage["connection"]["type"]
@@ -61,18 +67,26 @@ class Remote():
         Remote.storage["server"]["frame_time"] = frame_time
         Remote.storage["server"]["current_time"] = current
         #Remote.storage["server"]["previous"] = layer
-        self.send_payload(payload)
-    
-    def send_payload(self, payload):
-        ip = Remote.storage["connection"]["ip"]
-        port = Remote.storage["connection"]["port"]
-        pickled = jsonpickle.encode(payload)
-        diff = self.build_timestamp() - payload['current_time']
         if (Remote.diagnostics == None):
             self.create_diag()
-        fps = int(1000 / payload['frame_time'])
-        Remote.diagnostics.write(",".join([str(fps), str(payload['frame_time']), str(diff)]) + "\n")
-        #Remote.connection.sendto(jsonpickle(payload), ip, port)
+            threading.Thread(target=self.send_payload, args=()).start()
+       
+        Remote.pending.append(payload)
+    
+    def send_payload(self):
+        ip = Remote.storage["connection"]["ip"]
+        port = Remote.storage["connection"]["port"]
+        while True:
+            while (len(Remote.pending) > 0):
+                payload = Remote.pending.pop(0)
+                pickled = jsonpickle.encode(payload)
+                diff = self.build_timestamp() - payload['current_time']
+                frame_time = payload['frame_time']
+                if (frame_time == 0):
+                    frame_time = 1
+                fps = int(1000 / frame_time)
+                self.write_diag(",".join([str(fps), str(payload['frame_time']), str(diff)]) + "\n")
+                #Remote.connection.sendto(jsonpickle(payload), ip, port)
 
     def send_frame(self, layer):
         if(True or self.get_type() == 2):
