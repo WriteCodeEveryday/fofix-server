@@ -39,8 +39,8 @@ class Remote():
             if (self.get_type() == 2):
                 Remote.connection.bind((self.ip, self.port))
 
-    def create_diag(self): 
-        Remote.diagnostics = open("multi-shared.csv", "w")
+    def create_diag(self, string): 
+        Remote.diagnostics = open("multi-shared-threads-" + str(string) + ".csv", "w")
         Remote.diagnostics.write(",".join(['Frames per Second', 'Frame Time', 'Frame Broadcast Delay']) + "\n")
     
     def write_diag(self, data):
@@ -68,7 +68,7 @@ class Remote():
         Remote.storage["server"]["current_time"] = current
         #Remote.storage["server"]["previous"] = layer
         if (Remote.diagnostics == None):
-            self.create_diag()
+            self.create_diag(2)
             threading.Thread(target=self.send_payload, args=()).start()
        
         Remote.pending.append(payload)
@@ -76,16 +76,17 @@ class Remote():
     def send_payload(self):
         ip = Remote.storage["connection"]["ip"]
         port = Remote.storage["connection"]["port"]
+        count = 4
         while True:
-            while (len(Remote.pending) > 0):
-                payload = Remote.pending.pop(0)
-                pickled = jsonpickle.encode(payload)
-                diff = self.build_timestamp() - payload['current_time']
-                frame_time = payload['frame_time']
-                if (frame_time == 0):
-                    frame_time = 1
-                fps = int(1000 / frame_time)
-                self.write_diag(",".join([str(fps), str(payload['frame_time']), str(diff)]) + "\n")
+            while (len(Remote.pending) > count):
+                for x in range(1, count + 1):
+                    payload = Remote.pending.pop(len(Remote.pending) - x)
+                    if (payload['frame_time'] != 0):
+                        pickled = jsonpickle.encode(payload)
+                        diff = self.build_timestamp() - payload['current_time']
+                        frame_time = payload['frame_time']
+                        fps = int(1000 / frame_time)
+                        self.write_diag(",".join([str(fps), str(payload['frame_time']), str(diff)]) + "\n")
                 #Remote.connection.sendto(jsonpickle(payload), ip, port)
 
     def send_frame(self, layer):
